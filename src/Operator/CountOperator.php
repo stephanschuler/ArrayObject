@@ -14,4 +14,12 @@ class CountOperator extends AbstractOperator
     {
         return array_count_values($data);
     }
+
+    public static function toCountable(array $data): array
+    {
+        return array_map(function($value) {
+            return is_string($value) || is_numeric($value) ? $value : (string)$value;
+        }, $data);
+
+    }
 }

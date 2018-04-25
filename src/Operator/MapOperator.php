@@ -45,13 +45,6 @@ class MapOperator extends AbstractOperator
         }, $includeKeys);
     }
 
-    public static function toCountable(array $array, $includeKeys = false): array
-    {
-        return self::map($array, function ($value) {
-            return is_string($value) || is_numeric($value) ? $value : (string)$value;
-        }, $includeKeys);
-    }
-
     public static function negate(array $array, $includeKeys = false): array
     {
         return self::map($array, function ($value) {

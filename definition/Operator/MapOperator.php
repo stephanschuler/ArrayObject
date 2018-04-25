@@ -9,9 +9,6 @@ namespace StephanSchuler\ArrayObject;
  * @method ArrayObject column($column, $indexKey = null)
  * @see \StephanSchuler\ArrayObject\Operator\MapOperator::column()
  *
- * @method ArrayObject toCountable($includeKeys = false)
- * @see \StephanSchuler\ArrayObject\Operator\MapOperator::toCountable()
- *
  * @method ArrayObject toString($includeKeys = false)
  * @see \StephanSchuler\ArrayObject\Operator\MapOperator::toString()
  *
