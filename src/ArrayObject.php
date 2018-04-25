@@ -32,9 +32,22 @@ class ArrayObject
     public function __call(string $methodName, array $arguments)
     {
         self::preventMethod($methodName);
-        array_unshift($arguments, $this->toArray());
-        $className = self::$method[$methodName];
-        return new self($className(...$arguments));
+        $callable = self::$method[$methodName];
+        return new self(
+            $callable(
+                $this->toArray(),
+                ...$arguments
+            )
+        );
+    }
+
+    public static function __callStatic(string $methodName, array $arguments): callable
+    {
+        self::preventMethod($methodName);
+        $callable = self::$method[$methodName];
+        return function (array $data) use ($callable, $arguments) {
+            return $callable($data, ...$arguments);
+        };
     }
 
     public static function registerMethod(callable $method, string $methodName)
