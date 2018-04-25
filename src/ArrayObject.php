@@ -31,6 +31,7 @@ class ArrayObject
 
     public function __call(string $methodName, array $arguments)
     {
+        self::preventMethod($methodName);
         array_unshift($arguments, $this->toArray());
         $className = self::$method[$methodName];
         return new self($className(...$arguments));
@@ -42,5 +43,15 @@ class ArrayObject
             throw new \Exception(sprintf('Method %s::%s() already registered.', get_called_class(), $methodName));
         }
         self::$method[$methodName] = [$operatorClassName, $methodName];
+    }
+
+    protected static function preventMethod(string $methodName)
+    {
+        if (!array_key_exists($methodName, self::$method)) {
+            throw new \BadMethodCallException(
+                sprintf('Call to undefined method %s::%s()".', get_called_class(), $methodName),
+                1524688036
+            );
+        }
     }
 }
