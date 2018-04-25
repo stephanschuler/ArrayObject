@@ -1,0 +1,15 @@
+{
+    "name": "stephanschuler/array-object",
+    "description": "Array transformation on an immutable ArrayObject implementation.",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Stephan Schuler",
+            "email": "stephan.schuler@netlogix.de"
+        }
+    ],
+    "require": {
+        "php": "~7.0"
+    }
+}
