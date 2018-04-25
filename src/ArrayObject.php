@@ -23,4 +23,9 @@ class ArrayObject
     {
         return $this->storage;
     }
+
+    public function getIterator(): \ArrayIterator
+    {
+        return new \ArrayIterator($this->toArray());
+    }
 }
