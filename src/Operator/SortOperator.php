@@ -35,8 +35,8 @@ class SortOperator extends AbstractOperator
         return $data;
     }
 
-    public static function reverse(array $array): array
+    public static function reverse(array $data): array
     {
-        return array_reverse($array);
+        return array_reverse($data);
     }
 }

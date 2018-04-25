@@ -5,8 +5,8 @@ namespace StephanSchuler\ArrayObject\Operator;
 
 class ReduceOperator extends AbstractOperator
 {
-    public static function reduce(array $array, callable $transformation = null, $initial = null): array
+    public static function reduce(array $data, callable $transformation = null, $initial = null): array
     {
-        return array_reduce($array, $transformation, $initial);
+        return array_reduce($data, $transformation, $initial);
     }
 }

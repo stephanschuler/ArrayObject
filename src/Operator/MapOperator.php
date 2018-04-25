@@ -5,18 +5,18 @@ namespace StephanSchuler\ArrayObject\Operator;
 
 class MapOperator extends AbstractOperator
 {
-    public static function map(array $array, callable $transformation = null, $includeKeys = false): array
+    public static function map(array $data, callable $transformation = null, $includeKeys = false): array
     {
         if (!$transformation) {
-            return $array;
+            return $data;
         }
         if (!$includeKeys) {
-            return array_map($transformation, $array);
+            return array_map($transformation, $data);
         }
-        array_walk($array, function (&$value, $key) use ($transformation) {
+        array_walk($data, function (&$value, $key) use ($transformation) {
             $value = $transformation($value, $key);
         });
-        return $array;
+        return $data;
     }
 
     public static function column(array $data, $column, $indexKey = null): array
@@ -24,30 +24,30 @@ class MapOperator extends AbstractOperator
         return array_column($data, $column, $indexKey);
     }
 
-    public static function toString(array $array, $includeKeys = false): array
+    public static function toString(array $data, $includeKeys = false): array
     {
-        return self::map($array, function ($value) {
+        return self::map($data, function ($value) {
             return (string)$value;
         }, $includeKeys);
     }
 
-    public static function toInt(array $array, $includeKeys = false): array
+    public static function toInt(array $data, $includeKeys = false): array
     {
-        return self::map($array, function ($value) {
+        return self::map($data, function ($value) {
             return (int)$value;
         }, $includeKeys);
     }
 
-    public static function toBool(array $array, $includeKeys = false): array
+    public static function toBool(array $data, $includeKeys = false): array
     {
-        return self::map($array, function ($value) {
+        return self::map($data, function ($value) {
             return !!$value;
         }, $includeKeys);
     }
 
-    public static function negate(array $array, $includeKeys = false): array
+    public static function negate(array $data, $includeKeys = false): array
     {
-        return self::map($array, function ($value) {
+        return self::map($data, function ($value) {
             return !$value;
         }, $includeKeys);
     }
