@@ -14,6 +14,11 @@ class ArrayObject
         $this->storage = $data;
     }
 
+    public function getArrayCopy(): array
+    {
+        return $this->toArray();
+    }
+
     public function toArray(): array
     {
         return $this->storage;
