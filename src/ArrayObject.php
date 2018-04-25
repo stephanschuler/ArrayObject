@@ -37,12 +37,12 @@ class ArrayObject
         return new self($className(...$arguments));
     }
 
-    public static function registerMethod(string $operatorClassName, string $methodName)
+    public static function registerMethod(callable $method, string $methodName)
     {
         if (isset(self::$method[$methodName])) {
             throw new \Exception(sprintf('Method %s::%s() already registered.', get_called_class(), $methodName));
         }
-        self::$method[$methodName] = [$operatorClassName, $methodName];
+        self::$method[$methodName] = $method;
     }
 
     protected static function preventMethod(string $methodName)

@@ -36,7 +36,7 @@ abstract class AbstractOperator
             get_class_methods(AbstractOperator::class)
         );
         array_map(function ($methodName) use ($className) {
-            ArrayObject::registerMethod($className, $methodName);
+            ArrayObject::registerMethod([$className, $methodName], $methodName);
         }, $methodNames);
     }
 }
