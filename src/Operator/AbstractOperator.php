@@ -31,6 +31,13 @@ abstract class AbstractOperator
     public static function register()
     {
         $className = get_called_class();
+
+        static $done = [];
+        if (array_key_exists($className, $done)) {
+            return;
+        }
+        $done[$className] = true;
+
         $methodNames = array_diff(
             get_class_methods(get_called_class()),
             get_class_methods(AbstractOperator::class)
