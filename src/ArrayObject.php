@@ -117,6 +117,17 @@ class ArrayObject implements IteratorAggregate, Countable
         self::$method[$methodName] = $method;
     }
 
+    public static function fromArray(array $data): ArrayObject
+    {
+        return self::fromIterator(new \ArrayIterator($data));
+    }
+
+    public static function fromIterator(Iterator $data): ArrayObject
+    {
+        $className = get_called_class();
+        return new $className($data);
+    }
+
     protected function mutateIterator($methodName, array $arguments)
     {
         self::preventMethod($methodName);
