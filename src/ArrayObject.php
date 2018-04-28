@@ -10,6 +10,9 @@ use IteratorAggregate;
 
 class ArrayObject implements IteratorAggregate, Countable
 {
+    /**
+     * @var callable[]
+     */
     private static $method = [];
 
     /**
@@ -23,11 +26,16 @@ class ArrayObject implements IteratorAggregate, Countable
     private $storageIdentifier;
 
     /**
+     * @var bool
+     */
+    private $connected = true;
+
+    /**
      * @var int
      */
     private static $instanceCount = 0;
 
-    public function __construct(Iterator $data = null)
+    public function __construct(Iterator $data)
     {
         $this->storageIdentifier = $this->generateStorageIdentifier();
         self::$storage[$this->storageIdentifier] = $data;
@@ -38,38 +46,14 @@ class ArrayObject implements IteratorAggregate, Countable
         unset(self::$storage[$this->storageIdentifier]);
     }
 
-    public function getIterator(): Generator
-    {
-        (self::$storage[$this->storageIdentifier] instanceof Generator) && clone $this;
-        foreach (self::$storage[$this->storageIdentifier] as $key => $value) {
-            yield $key => $value;
-        }
-    }
-
     public function __call(string $methodName, array $arguments)
     {
-        self::preventMethod($methodName);
-        $callable = self::$method[$methodName];
-
-        self::$storage[$this->storageIdentifier] = $callable(self::$storage[$this->storageIdentifier], ...$arguments);
-        return $this;
-    }
-
-    public static function registerMethod(callable $method, string $methodName)
-    {
-        if (isset(self::$method[$methodName])) {
-            throw new \Exception(sprintf('Method %s::%s() already registered.', get_called_class(), $methodName));
-        }
-        self::$method[$methodName] = $method;
-    }
-
-    protected static function preventMethod(string $methodName)
-    {
-        if (!array_key_exists($methodName, self::$method)) {
-            throw new \BadMethodCallException(
-                sprintf('Call to undefined method %s::%s()".', get_called_class(), $methodName),
-                1524688036
-            );
+        if ($this->connected) {
+            self::$storage[$this->storageIdentifier] = $this->mutateIterator($methodName, $arguments);
+            return $this;
+        } else {
+            $className = get_called_class();
+            return new $className($this->mutateIterator($methodName, $arguments));
         }
     }
 
@@ -87,6 +71,18 @@ class ArrayObject implements IteratorAggregate, Countable
         }
     }
 
+    public function connect()
+    {
+        $this->connected = true;
+        return $this;
+    }
+
+    public function disconnect()
+    {
+        $this->connected = false;
+        return clone $this;
+    }
+
     public function count(): int
     {
         $data = $this->getIterator();
@@ -98,6 +94,39 @@ class ArrayObject implements IteratorAggregate, Countable
                 $number++;
             }
             return $number;
+        }
+    }
+
+    public function getIterator(): Generator
+    {
+        (self::$storage[$this->storageIdentifier] instanceof Generator) && clone $this;
+        foreach (self::$storage[$this->storageIdentifier] as $key => $value) {
+            yield $key => $value;
+        }
+    }
+
+    public static function registerMethod(callable $method, string $methodName)
+    {
+        if (isset(self::$method[$methodName])) {
+            throw new \Exception(sprintf('Cannot redeclare %s::%s().', get_called_class(), $methodName));
+        }
+        self::$method[$methodName] = $method;
+    }
+
+    protected function mutateIterator($methodName, array $arguments)
+    {
+        self::preventMethod($methodName);
+        $callable = self::$method[$methodName];
+        return $callable(self::$storage[$this->storageIdentifier], ...$arguments);
+    }
+
+    protected static function preventMethod(string $methodName)
+    {
+        if (!array_key_exists($methodName, self::$method)) {
+            throw new \BadMethodCallException(
+                sprintf('Call to undefined method %s::%s()".', get_called_class(), $methodName),
+                1524688036
+            );
         }
     }
 
