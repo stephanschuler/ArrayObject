@@ -3,10 +3,17 @@ declare(strict_types=1);
 
 namespace StephanSchuler\ArrayObject\Operator;
 
+use Generator;
+use Iterator;
+
 class ReduceOperator extends AbstractOperator
 {
-    public static function reduce(array $data, callable $transformation = null, $initial = null): array
+    public static function reduce(Iterator $data, callable $transform, $initial = null): Generator
     {
-        return array_reduce($data, $transformation, $initial);
+        $carry = $initial;
+        foreach ($data as $key => $value) {
+            $carry = $transform($carry, $value);
+        }
+        yield $carry;
     }
 }

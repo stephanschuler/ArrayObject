@@ -3,23 +3,23 @@ declare(strict_types=1);
 
 namespace StephanSchuler\ArrayObject\Operator;
 
+use Generator;
+use Iterator;
+
 class CountOperator extends AbstractOperator
 {
-    public static function count(array $data): array
+    public static function countValues(Iterator $data): Generator
     {
-        return [count($data)];
-    }
-
-    public static function countValues(array $data): array
-    {
-        return array_count_values($data);
-    }
-
-    public static function toCountable(array $data): array
-    {
-        return array_map(function($value) {
-            return is_string($value) || is_numeric($value) ? $value : (string)$value;
-        }, $data);
+        $distinct = [];
+        foreach ($data as $key => $value) {
+            if (!isset($distinct[$value])) {
+                $distinct[$value] = 0;
+            }
+            $distinct[$value]++;
+        }
+        foreach ($distinct as $key => $value) {
+            yield $key => $value;
+        }
 
     }
 }

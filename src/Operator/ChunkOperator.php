@@ -3,26 +3,56 @@ declare(strict_types=1);
 
 namespace StephanSchuler\ArrayObject\Operator;
 
+use Generator;
+use Iterator;
+
 class ChunkOperator extends AbstractOperator
 {
-    public static function chunk(array $data, int $size, $preserveKeys = true): array
+    public static function chunk(Iterator $data, int $size): Generator
     {
-        return array_chunk($data, $size, $preserveKeys);
+        $chunk = [];
+        foreach ($data as $key => $value) {
+            if (count($chunk) === $size) {
+                yield $chunk;
+                $chunk = [];
+            }
+            $chunk[$key] = $value;
+        }
+        if ($chunk) {
+            yield $chunk;
+        }
     }
 
-    public static function flat(array $data): array
+    public static function flat(Iterator $data): Generator
     {
-        return array_merge(...$data);
+        foreach ($data as $chunk) {
+            foreach ($chunk as $value) {
+                yield $value;
+            }
+        }
     }
 
-    public static function splice(array $data, int $offset, int $length = null): array
+    public static function splice(Iterator $data, int $offset, int $length = null): Generator
     {
-        array_splice($data, $offset, $length);
-        return $data;
+        $cursor = 0;
+        $max = $length ? ($offset + $length) : PHP_INT_MAX;
+        foreach ($data as $key => $value) {
+            if ($offset > $cursor || $cursor >= $max) {
+                yield $key => $value;
+            }
+            $cursor++;
+        }
     }
 
-    public static function slice(array $data, int $offset, int $length = null, $preserveKeys = false): array
+    public static function slice(Iterator $data, int $offset, int $length = null): Generator
     {
-        return array_slice($data, $offset, $length, $preserveKeys);
+        $cursor = 0;
+        $max = $length ? ($offset + $length) : PHP_INT_MAX;
+        foreach ($data as $key => $value) {
+            if ($offset <= $cursor && $cursor < $max) {
+                yield $key => $value;
+            }
+            $cursor++;
+        }
     }
 }

@@ -3,52 +3,51 @@ declare(strict_types=1);
 
 namespace StephanSchuler\ArrayObject\Operator;
 
+use Generator;
+use Iterator;
+
 class MapOperator extends AbstractOperator
 {
-    public static function map(array $data, callable $transformation = null, $includeKeys = false): array
+    public static function map(Iterator $data, callable $transform): Generator
     {
-        if (!$transformation) {
-            return $data;
+        foreach ($data as $key => $value) {
+            yield $key => $transform($value);
         }
-        if (!$includeKeys) {
-            return array_map($transformation, $data);
-        }
-        array_walk($data, function (&$value, $key) use ($transformation) {
-            $value = $transformation($value, $key);
-        });
-        return $data;
     }
 
-    public static function column(array $data, $column, $indexKey = null): array
+    public static function column(Iterator $data, $column, $indexKey = null): Generator
     {
-        return array_column($data, $column, $indexKey);
+        foreach ($data as $key => $value) {
+            yield (is_null($indexKey) ? $key : $value[$indexKey]) => $value[$column];
+        }
     }
 
-    public static function toString(array $data, $includeKeys = false): array
+    public static function toString(Iterator $data): Generator
     {
+
         return self::map($data, function ($value) {
             return (string)$value;
-        }, $includeKeys);
+        });
     }
 
-    public static function toInt(array $data, $includeKeys = false): array
+    public static function toInt(Iterator $data): Generator
     {
         return self::map($data, function ($value) {
             return (int)$value;
-        }, $includeKeys);
+        });
     }
 
-    public static function toBool(array $data, $includeKeys = false): array
+    public static function toBool(Iterator $data): Generator
     {
         return self::map($data, function ($value) {
             return !!$value;
-        }, $includeKeys);
+        });
     }
 
-    public static function negate(array $data, $includeKeys = false): array
+    public static function negate(Iterator $data): Generator
     {
         return self::map($data, function ($value) {
             return !$value;
-        }, $includeKeys);
+        });
     }
 }

@@ -3,51 +3,56 @@ declare(strict_types=1);
 
 namespace StephanSchuler\ArrayObject;
 
-class ArrayObject
+use Countable;
+use Generator;
+use Iterator;
+use IteratorAggregate;
+
+class ArrayObject implements IteratorAggregate, Countable
 {
     private static $method = [];
 
-    private $storage = [];
+    /**
+     * @var Iterator
+     */
+    private static $storage;
 
-    public function __construct(array $data = [])
+    /**
+     * @var string
+     */
+    private $storageIdentifier;
+
+    /**
+     * @var int
+     */
+    private static $instanceCount = 0;
+
+    public function __construct(Iterator $data = null)
     {
-        $this->storage = $data;
+        $this->storageIdentifier = $this->generateStorageIdentifier();
+        self::$storage[$this->storageIdentifier] = $data;
     }
 
-    public function getArrayCopy(): array
+    public function __destruct()
     {
-        return $this->toArray();
+        unset(self::$storage[$this->storageIdentifier]);
     }
 
-    public function toArray(): array
+    public function getIterator(): Generator
     {
-        return $this->storage;
-    }
-
-    public function getIterator(): \ArrayIterator
-    {
-        return new \ArrayIterator($this->toArray());
+        (self::$storage[$this->storageIdentifier] instanceof Generator) && clone $this;
+        foreach (self::$storage[$this->storageIdentifier] as $key => $value) {
+            yield $key => $value;
+        }
     }
 
     public function __call(string $methodName, array $arguments)
     {
         self::preventMethod($methodName);
         $callable = self::$method[$methodName];
-        return new self(
-            $callable(
-                $this->toArray(),
-                ...$arguments
-            )
-        );
-    }
 
-    public static function __callStatic(string $methodName, array $arguments): callable
-    {
-        self::preventMethod($methodName);
-        $callable = self::$method[$methodName];
-        return function (array $data) use ($callable, $arguments) {
-            return $callable($data, ...$arguments);
-        };
+        self::$storage[$this->storageIdentifier] = $callable(self::$storage[$this->storageIdentifier], ...$arguments);
+        return $this;
     }
 
     public static function registerMethod(callable $method, string $methodName)
@@ -66,5 +71,38 @@ class ArrayObject
                 1524688036
             );
         }
+    }
+
+    public function __clone()
+    {
+        $source = self::$storage[$this->storageIdentifier];
+
+        $target1 = self::$storage[$this->storageIdentifier] = new \ArrayIterator();
+        $this->storageIdentifier = $this->generateStorageIdentifier();
+        $target2 = self::$storage[$this->storageIdentifier] = new \ArrayIterator();
+
+        foreach ($source as $key => $value) {
+            $target1[$key] = $value;
+            $target2[$key] = $value;
+        }
+    }
+
+    public function count(): int
+    {
+        $data = $this->getIterator();
+        if ($data instanceof Countable) {
+            return $data->count();
+        } else {
+            $number = 0;
+            foreach ($data as $value) {
+                $number++;
+            }
+            return $number;
+        }
+    }
+
+    private function generateStorageIdentifier()
+    {
+        return self::$instanceCount++;
     }
 }

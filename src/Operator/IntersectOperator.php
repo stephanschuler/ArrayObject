@@ -3,24 +3,35 @@ declare(strict_types=1);
 
 namespace StephanSchuler\ArrayObject\Operator;
 
+use Generator;
+use Iterator;
+
 class IntersectOperator extends AbstractOperator
 {
-    public static function intersect(array $data, array $intersectWith = []): array
+    public static function intersect(Iterator $data, array $intersectWith = []): Generator
     {
-        return array_intersect($data, $intersectWith);
+        foreach ($data as $key => $value) {
+            if (in_array($value, $intersectWith, true)) {
+                yield $key => $value;
+            }
+        }
     }
 
-    public static function intersectKey(array $data, array $intersectWith = [], callable $compare = null): array
+    public static function intersectKey(Iterator $data, array $intersectWith = []): Generator
     {
-        return $compare
-            ? array_intersect_ukey($data, $intersectWith, $compare)
-            : array_intersect_key($data, $intersectWith);
+        foreach ($data as $key => $value) {
+            if (in_array($key, $intersectWith, true)) {
+                yield $key => $value;
+            }
+        }
     }
 
-    public static function intersectAssoc(array $data, array $intersectWith = [], callable $compare = null): array
+    public static function intersectAssoc(Iterator $data, array $intersectWith = []): Generator
     {
-        return $compare
-            ? array_intersect_uassoc($data, $intersectWith, $compare)
-            : array_intersect_assoc($data, $intersectWith);
+        foreach ($data as $key => $value) {
+            if (array_search($value, $intersectWith) === $key) {
+                yield $key => $value;
+            }
+        }
     }
 }

@@ -1,6 +1,6 @@
 {
     "name": "stephanschuler/array-object",
-    "description": "Array transformation on an immutable ArrayObject implementation.",
+    "description": "Array transformation based on Iterators and Generators.",
     "type": "library",
     "license": "MIT",
     "authors": [

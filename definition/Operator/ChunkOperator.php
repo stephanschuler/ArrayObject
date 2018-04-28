@@ -3,7 +3,7 @@
 namespace StephanSchuler\ArrayObject;
 
 /**
- * @method ArrayObject chunk(int $size, $preserveKeys = true)
+ * @method ArrayObject chunk(int $size)
  * @see \StephanSchuler\ArrayObject\Operator\ChunkOperator::chunk()
  *
  * @method ArrayObject flat()
@@ -12,7 +12,7 @@ namespace StephanSchuler\ArrayObject;
  * @method ArrayObject splice(int $offset, int $length = null)
  * @see \StephanSchuler\ArrayObject\Operator\ChunkOperator::splice()
  *
- * @method ArrayObject slice(int $offset, int $length = null, $preserveKeys = false)
+ * @method ArrayObject slice(int $offset, int $length = null)
  * @see \StephanSchuler\ArrayObject\Operator\ChunkOperator::slice()
  */
 class ArrayObject
