@@ -4,11 +4,11 @@ declare(strict_types=1);
 namespace StephanSchuler\ArrayObject\Operator;
 
 use Generator;
-use Iterator;
+use Traversable;
 
 class IntersectOperator extends AbstractOperator
 {
-    public static function intersect(Iterator $data, array $intersectWith = []): Generator
+    public static function intersect(Traversable $data, array $intersectWith = []): Generator
     {
         foreach ($data as $key => $value) {
             if (in_array($value, $intersectWith, true)) {
@@ -17,7 +17,7 @@ class IntersectOperator extends AbstractOperator
         }
     }
 
-    public static function intersectKey(Iterator $data, array $intersectWith = []): Generator
+    public static function intersectKey(Traversable $data, array $intersectWith = []): Generator
     {
         foreach ($data as $key => $value) {
             if (in_array($key, $intersectWith, true)) {
@@ -26,7 +26,7 @@ class IntersectOperator extends AbstractOperator
         }
     }
 
-    public static function intersectAssoc(Iterator $data, array $intersectWith = []): Generator
+    public static function intersectAssoc(Traversable $data, array $intersectWith = []): Generator
     {
         foreach ($data as $key => $value) {
             if (array_search($value, $intersectWith) === $key) {

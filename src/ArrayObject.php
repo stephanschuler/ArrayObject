@@ -5,8 +5,8 @@ namespace StephanSchuler\ArrayObject;
 
 use Countable;
 use Generator;
-use Iterator;
 use IteratorAggregate;
+use Traversable;
 
 class ArrayObject implements IteratorAggregate, Countable
 {
@@ -16,40 +16,24 @@ class ArrayObject implements IteratorAggregate, Countable
     private static $method = [];
 
     /**
-     * @var Iterator[]
+     * @var Traversable
      */
-    private static $storage;
-
-    /**
-     * @var string
-     */
-    private $storageIdentifier;
+    private $storage;
 
     /**
      * @var bool
      */
     private $connected = true;
 
-    /**
-     * @var int
-     */
-    private static $instanceCount = 0;
-
-    public function __construct(Iterator $data)
+    public function __construct(Traversable $data)
     {
-        $this->storageIdentifier = $this->generateStorageIdentifier();
-        self::$storage[$this->storageIdentifier] = $data;
-    }
-
-    public function __destruct()
-    {
-        unset(self::$storage[$this->storageIdentifier]);
+        $this->storage = new DisconnectableIterator($data);
     }
 
     public function __call(string $methodName, array $arguments)
     {
         if ($this->connected) {
-            self::$storage[$this->storageIdentifier] = $this->mutateIterator($methodName, $arguments);
+            $this->storage = $this->mutateIterator($methodName, $arguments);
             return $this;
         } else {
             $className = get_called_class();
@@ -59,16 +43,7 @@ class ArrayObject implements IteratorAggregate, Countable
 
     public function __clone()
     {
-        $source = self::$storage[$this->storageIdentifier];
-
-        $target1 = self::$storage[$this->storageIdentifier] = new \ArrayIterator();
-        $this->storageIdentifier = $this->generateStorageIdentifier();
-        $target2 = self::$storage[$this->storageIdentifier] = new \ArrayIterator();
-
-        foreach ($source as $key => $value) {
-            $target1[$key] = $value;
-            $target2[$key] = $value;
-        }
+        $this->storage = clone $this->storage;
     }
 
     public function connect()
@@ -99,7 +74,7 @@ class ArrayObject implements IteratorAggregate, Countable
 
     public function getIterator(): Generator
     {
-        foreach (self::$storage[$this->storageIdentifier] as $key => $value) {
+        foreach ($this->storage as $key => $value) {
             yield $key => $value;
         }
     }
@@ -122,7 +97,7 @@ class ArrayObject implements IteratorAggregate, Countable
         return self::fromIterator(new \ArrayIterator($data));
     }
 
-    public static function fromIterator(Iterator $data): ArrayObject
+    public static function fromIterator(Traversable $data): ArrayObject
     {
         $className = get_called_class();
         return new $className($data);
@@ -132,7 +107,7 @@ class ArrayObject implements IteratorAggregate, Countable
     {
         self::preventMethod($methodName);
         $callable = self::$method[$methodName];
-        return $callable(self::$storage[$this->storageIdentifier], ...$arguments);
+        return new DisconnectableIterator($callable($this->storage, ...$arguments));
     }
 
     protected static function preventMethod(string $methodName)
@@ -143,10 +118,5 @@ class ArrayObject implements IteratorAggregate, Countable
                 1524688036
             );
         }
-    }
-
-    private function generateStorageIdentifier()
-    {
-        return self::$instanceCount++;
     }
 }

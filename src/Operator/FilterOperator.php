@@ -4,11 +4,11 @@ declare(strict_types=1);
 namespace StephanSchuler\ArrayObject\Operator;
 
 use Generator;
-use Iterator;
+use Traversable;
 
 class FilterOperator extends AbstractOperator
 {
-    public static function filter(Iterator $data, callable $compare = null): Generator
+    public static function filter(Traversable $data, callable $compare = null): Generator
     {
         foreach ($data as $key => $value) {
             if (!$compare || $compare($value)) {

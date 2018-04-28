@@ -4,25 +4,25 @@ declare(strict_types=1);
 namespace StephanSchuler\ArrayObject\Operator;
 
 use Generator;
-use Iterator;
+use Traversable;
 
 class FlipOperator extends AbstractOperator
 {
-    public static function flip(Iterator $data): Generator
+    public static function flip(Traversable $data): Generator
     {
         foreach ($data as $key => $value) {
             yield $value => $key;
         }
     }
 
-    public function values(Iterator $data): Generator
+    public function values(Traversable $data): Generator
     {
         foreach ($data as $value) {
             yield $value;
         }
     }
 
-    public function keys(Iterator $data): Generator
+    public function keys(Traversable $data): Generator
     {
         return self::values(FlipOperator::flip($data));
     }

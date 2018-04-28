@@ -4,11 +4,11 @@ declare(strict_types=1);
 namespace StephanSchuler\ArrayObject\Operator;
 
 use Generator;
-use Iterator;
+use Traversable;
 
 class CountOperator extends AbstractOperator
 {
-    public static function countValues(Iterator $data): Generator
+    public static function countValues(Traversable $data): Generator
     {
         $distinct = [];
         foreach ($data as $key => $value) {

@@ -4,11 +4,11 @@ declare(strict_types=1);
 namespace StephanSchuler\ArrayObject\Operator;
 
 use Generator;
-use Iterator;
+use Traversable;
 
 class ChunkOperator extends AbstractOperator
 {
-    public static function chunk(Iterator $data, int $size): Generator
+    public static function chunk(Traversable $data, int $size): Generator
     {
         $chunk = [];
         foreach ($data as $key => $value) {
@@ -23,7 +23,7 @@ class ChunkOperator extends AbstractOperator
         }
     }
 
-    public static function flat(Iterator $data): Generator
+    public static function flat(Traversable $data): Generator
     {
         foreach ($data as $chunk) {
             foreach ($chunk as $value) {
@@ -32,7 +32,7 @@ class ChunkOperator extends AbstractOperator
         }
     }
 
-    public static function splice(Iterator $data, int $offset, int $length = null): Generator
+    public static function splice(Traversable $data, int $offset, int $length = null): Generator
     {
         $cursor = 0;
         $max = $length ? ($offset + $length) : PHP_INT_MAX;
@@ -44,7 +44,7 @@ class ChunkOperator extends AbstractOperator
         }
     }
 
-    public static function slice(Iterator $data, int $offset, int $length = null): Generator
+    public static function slice(Traversable $data, int $offset, int $length = null): Generator
     {
         $cursor = 0;
         $max = $length ? ($offset + $length) : PHP_INT_MAX;
