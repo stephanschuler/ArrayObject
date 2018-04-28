@@ -104,6 +104,11 @@ class ArrayObject implements IteratorAggregate, Countable
         }
     }
 
+    public function getArrayCopy()
+    {
+        return iterator_to_array($this->getIterator());
+    }
+
     public static function registerMethod(callable $method, string $methodName)
     {
         if (isset(self::$method[$methodName])) {
