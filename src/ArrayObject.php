@@ -16,7 +16,7 @@ class ArrayObject implements IteratorAggregate, Countable
     private static $method = [];
 
     /**
-     * @var Iterator
+     * @var Iterator[]
      */
     private static $storage;
 
@@ -99,7 +99,6 @@ class ArrayObject implements IteratorAggregate, Countable
 
     public function getIterator(): Generator
     {
-        (self::$storage[$this->storageIdentifier] instanceof Generator) && clone $this;
         foreach (self::$storage[$this->storageIdentifier] as $key => $value) {
             yield $key => $value;
         }
