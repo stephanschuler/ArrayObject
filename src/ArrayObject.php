@@ -6,6 +6,7 @@ namespace StephanSchuler\ArrayObject;
 use Countable;
 use Generator;
 use IteratorAggregate;
+use StephanSchuler\ArrayObject\Exception\CloningDisabledException;
 use Traversable;
 
 class ArrayObject implements IteratorAggregate, Countable
@@ -14,6 +15,11 @@ class ArrayObject implements IteratorAggregate, Countable
      * @var callable[]
      */
     private static $method = [];
+
+    /**
+     * @var bool
+     */
+    private static $isCloningAllowed = false;
 
     /**
      * @var Traversable
@@ -43,6 +49,12 @@ class ArrayObject implements IteratorAggregate, Countable
 
     public function __clone()
     {
+        if (!self::$isCloningAllowed) {
+            throw new CloningDisabledException(sprintf(
+                'Cloning of %s objects is disabled, use %1$s::withCloningAllowed() to temporary enable cloningf',
+                get_called_class()
+            ), 1525011441);
+        }
         $this->storage = clone $this->storage;
     }
 
@@ -101,6 +113,15 @@ class ArrayObject implements IteratorAggregate, Countable
     {
         $className = get_called_class();
         return new $className($data);
+    }
+
+    public static function withCloningAllowed(callable $callable)
+    {
+        $isCloningAllowed = self::$isCloningAllowed;
+        self::$isCloningAllowed = true;
+        $result = $callable();
+        self::$isCloningAllowed = $isCloningAllowed;
+        return $result;
     }
 
     protected function mutateIterator($methodName, array $arguments)
