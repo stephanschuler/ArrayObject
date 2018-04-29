@@ -16,4 +16,16 @@ class FilterOperator extends AbstractOperator
             }
         }
     }
+
+    public static function distinctUntilChanged(Traversable $data, callable $compare = null): Generator
+    {
+        $lastItem = null;
+        foreach ($data as $key => $value) {
+            $comparable = $compare ? ($compare)($value) : $value;
+            if ($comparable !== $lastItem) {
+                yield $key => $value;
+            }
+            $lastItem = $comparable;
+        }
+    }
 }
