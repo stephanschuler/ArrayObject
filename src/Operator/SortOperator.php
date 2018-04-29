@@ -7,6 +7,12 @@ use ArrayIterator;
 use Generator;
 use Traversable;
 
+/**
+ * Every sort operation unwraps and rewraps the traversable. This results in
+ * immediate consumption of the data set as a whole leading to larger memory
+ * requirements. The intention behind this lib is consuming stream(ish) data
+ * step by step with a low memory footprint. Maybe sorting should be avoided.
+ */
 class SortOperator extends AbstractOperator
 {
     public static function natsort(Traversable $data): Generator
