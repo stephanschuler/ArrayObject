@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace StephanSchuler\ArrayObject\Operator;
 
 use StephanSchuler\ArrayObject\ArrayObject;
+use StephanSchuler\ArrayObject\Exception\RedeclareMethodException;
 
 /**
  * An Operator is a set of methods all callable at any instance of the
@@ -26,7 +27,7 @@ abstract class AbstractOperator
      * Makes a certain Operator known to the ArrayObject in order to have
      * all the Operators methods being available as operator methods.
      *
-     * @throws \Exception
+     * @throws RedeclareMethodException
      */
     public static function register()
     {

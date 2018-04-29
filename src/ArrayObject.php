@@ -7,6 +7,8 @@ use Countable;
 use Generator;
 use IteratorAggregate;
 use StephanSchuler\ArrayObject\Exception\CloningDisabledException;
+use StephanSchuler\ArrayObject\Exception\RedeclareMethodException;
+use StephanSchuler\ArrayObject\Exception\UndefinedMethodCallException;
 use Traversable;
 
 class ArrayObject implements IteratorAggregate, Countable
@@ -31,11 +33,23 @@ class ArrayObject implements IteratorAggregate, Countable
      */
     private $connected = true;
 
+    /**
+     * Create a new ArrayObject
+     *
+     * @param Traversable $data
+     */
     public function __construct(Traversable $data)
     {
         $this->storage = new DisconnectableIterator($data);
     }
 
+    /**
+     * All operator methods are plugins.
+     *
+     * @param string $methodName
+     * @param array $arguments
+     * @return $this
+     */
     public function __call(string $methodName, array $arguments)
     {
         if ($this->connected) {
@@ -47,6 +61,11 @@ class ArrayObject implements IteratorAggregate, Countable
         }
     }
 
+    /**
+     * Cloning means unwrapping the storage Traversable. Avoid if possible.
+     *
+     * @throws CloningDisabledException
+     */
     public function __clone()
     {
         if (!self::$isCloningAllowed) {
@@ -58,18 +77,37 @@ class ArrayObject implements IteratorAggregate, Countable
         $this->storage = clone $this->storage;
     }
 
+    /**
+     * Connected ArrayObjects return $this and manipulate internal state when calling an operator.
+     *
+     * @return ArrayObject $this
+     */
     public function connect()
     {
         $this->connected = true;
         return $this;
     }
 
+    /**
+     * Disconnected ArrayObjects return new objects when calling an operator, the state of the
+     * source stays unchanged.
+     *
+     * @return ArrayObject
+     */
     public function disconnect()
     {
         $this->connected = false;
         return clone $this;
     }
 
+    /**
+     * All operators are meant to take Traversables and return Traversables. Since self::count()
+     * needs to return an integer, implementing it as plugin is not an option.
+     * Additionally, ArrayObject does implement the Countable interface which requires
+     * self::count() to be an actual method.
+     *
+     * @return int
+     */
     public function count(): int
     {
         $data = $this->getIterator();
@@ -84,6 +122,11 @@ class ArrayObject implements IteratorAggregate, Countable
         }
     }
 
+    /**
+     * Required by the IteratorAggregate interface.
+     *
+     * @return Generator
+     */
     public function getIterator(): Generator
     {
         foreach ($this->storage as $key => $value) {
@@ -91,23 +134,52 @@ class ArrayObject implements IteratorAggregate, Countable
         }
     }
 
+    /**
+     * This immediately unwraps the internal state!
+     *
+     * @return array
+     */
     public function getArrayCopy()
     {
         return iterator_to_array($this->getIterator());
     }
 
+    /**
+     * The callable is registered as new method for every ArrayObject.
+     *
+     * @param callable $method
+     * @param string $methodName
+     * @throws RedeclareMethodException
+     */
     public static function registerMethod(callable $method, string $methodName)
     {
         if (isset(self::$method[$methodName])) {
-            throw new \Exception(sprintf('Cannot redeclare %s::%s().', get_called_class(), $methodName));
+            throw new RedeclareMethodException(sprintf(
+                'Cannot redeclare %s::%s().',
+                get_called_class(),
+                $methodName
+            ), 1525011658);
         }
         self::$method[$methodName] = $method;
     }
 
+    /**
+     * Static factory shorthand for creating ArrayObjects from arrays
+     *
+     * @param array $data
+     * @return ArrayObject
+     */
     public static function fromArray(array $data): ArrayObject
     {
         return self::fromIterator(new \ArrayIterator($data));
     }
+
+    /**
+     * Static factory shorthand for creating ArrayObjects from Traversables
+     *
+     * @param array $data
+     * @return ArrayObject
+     */
 
     public static function fromIterator(Traversable $data): ArrayObject
     {
@@ -115,6 +187,14 @@ class ArrayObject implements IteratorAggregate, Countable
         return new $className($data);
     }
 
+    /**
+     * Execute the given callable while temporarily enable cloning of ArrayObjects. This
+     * is meant to make sure no accidental unwrapping is done resulting in unintended
+     * memory consumption.
+     *
+     * @param callable $callable
+     * @return mixed
+     */
     public static function withCloningAllowed(callable $callable)
     {
         $isCloningAllowed = self::$isCloningAllowed;
@@ -134,10 +214,11 @@ class ArrayObject implements IteratorAggregate, Countable
     protected static function preventMethod(string $methodName)
     {
         if (!array_key_exists($methodName, self::$method)) {
-            throw new \BadMethodCallException(
-                sprintf('Call to undefined method %s::%s()".', get_called_class(), $methodName),
-                1524688036
-            );
+            throw new UndefinedMethodCallException(sprintf(
+                'Call to undefined method %s::%s()".',
+                get_called_class(),
+                $methodName
+            ), 1524688036);
         }
     }
 }
