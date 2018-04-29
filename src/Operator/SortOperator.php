@@ -52,8 +52,6 @@ class SortOperator extends AbstractOperator
 
     private static function generateFromArrayIterator(ArrayIterator $object): Generator
     {
-        foreach ($object as $key => $value) {
-            yield $key => $value;
-        }
+        yield from $object;
     }
 }

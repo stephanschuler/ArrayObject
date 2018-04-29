@@ -17,9 +17,7 @@ class CountOperator extends AbstractOperator
             }
             $distinct[$value]++;
         }
-        foreach ($distinct as $key => $value) {
-            yield $key => $value;
-        }
+        yield from $distinct;
 
     }
 }
