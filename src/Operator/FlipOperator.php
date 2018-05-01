@@ -6,7 +6,7 @@ namespace StephanSchuler\ArrayObject\Operator;
 use Generator;
 use Traversable;
 
-class FlipOperator extends AbstractOperator
+class FlipOperator extends AbstractOperator implements OperatorInterface
 {
     public static function flip(Traversable $data): Generator
     {

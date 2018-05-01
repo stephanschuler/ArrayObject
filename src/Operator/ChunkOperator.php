@@ -6,7 +6,7 @@ namespace StephanSchuler\ArrayObject\Operator;
 use Generator;
 use Traversable;
 
-class ChunkOperator extends AbstractOperator
+class ChunkOperator extends AbstractOperator implements OperatorInterface
 {
     public static function chunk(Traversable $data, int $size): Generator
     {

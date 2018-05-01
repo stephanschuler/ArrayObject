@@ -6,7 +6,7 @@ namespace StephanSchuler\ArrayObject\Operator;
 use Generator;
 use Traversable;
 
-class ReduceOperator extends AbstractOperator
+class ReduceOperator extends AbstractOperator implements OperatorInterface
 {
     public static function reduce(Traversable $data, callable $transform, $initial = null): Generator
     {

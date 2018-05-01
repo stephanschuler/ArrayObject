@@ -13,7 +13,7 @@ use Traversable;
  * requirements. The intention behind this lib is consuming stream(ish) data
  * step by step with a low memory footprint. Maybe sorting should be avoided.
  */
-class SortOperator extends AbstractOperator
+class SortOperator extends AbstractOperator implements OperatorInterface
 {
     public static function natsort(Traversable $data): Generator
     {

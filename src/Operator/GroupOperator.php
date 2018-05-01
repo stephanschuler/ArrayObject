@@ -6,7 +6,7 @@ namespace StephanSchuler\ArrayObject\Operator;
 use Generator;
 use Traversable;
 
-class GroupOperator extends AbstractOperator
+class GroupOperator extends AbstractOperator implements OperatorInterface
 {
     public static function groupSubsequent(Traversable $data, callable $compare, int $groupSize): Generator
     {

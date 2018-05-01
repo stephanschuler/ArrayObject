@@ -6,7 +6,7 @@ namespace StephanSchuler\ArrayObject\Operator;
 use Generator;
 use Traversable;
 
-class CountOperator extends AbstractOperator
+class CountOperator extends AbstractOperator implements OperatorInterface
 {
     public static function countValues(Traversable $data): Generator
     {

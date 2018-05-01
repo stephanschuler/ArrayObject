@@ -9,6 +9,7 @@ use IteratorAggregate;
 use StephanSchuler\ArrayObject\Exception\CloningDisabledException;
 use StephanSchuler\ArrayObject\Exception\RedeclareMethodException;
 use StephanSchuler\ArrayObject\Exception\UndefinedMethodCallException;
+use StephanSchuler\ArrayObject\Operator\OperatorInterface;
 use Traversable;
 
 class ArrayObject implements IteratorAggregate, Countable
@@ -161,6 +162,27 @@ class ArrayObject implements IteratorAggregate, Countable
             ), 1525011658);
         }
         self::$method[$methodName] = $method;
+    }
+
+    /**
+     * Register all default methods from the Operators directory.
+     */
+    public static function registerDefaultMethods()
+    {
+        $classPaths = glob(__DIR__ . '/Operator/*Operator.php');
+        $classNames = array_map(function($classPath) {
+            return str_replace('.php', '', basename($classPath));
+        }, $classPaths);
+        $classNames = array_map(function($className) {
+            return __NAMESPACE__ . '\\Operator\\' . $className;
+        }, $classNames);
+        $classNames = array_filter($classNames, function($className) {
+            return is_a($className, OperatorInterface::class, true);
+        });
+        array_walk($classNames, function($className) {
+            $register = [$className, 'register'];
+            $register();
+        });
     }
 
     /**

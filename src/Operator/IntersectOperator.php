@@ -6,7 +6,7 @@ namespace StephanSchuler\ArrayObject\Operator;
 use Generator;
 use Traversable;
 
-class IntersectOperator extends AbstractOperator
+class IntersectOperator extends AbstractOperator implements OperatorInterface
 {
     public static function intersect(Traversable $data, array $intersectWith = []): Generator
     {

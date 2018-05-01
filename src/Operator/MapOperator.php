@@ -6,7 +6,7 @@ namespace StephanSchuler\ArrayObject\Operator;
 use Generator;
 use Traversable;
 
-class MapOperator extends AbstractOperator
+class MapOperator extends AbstractOperator implements OperatorInterface
 {
     public static function map(Traversable $data, callable $transform): Generator
     {

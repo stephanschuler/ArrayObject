@@ -6,7 +6,7 @@ namespace StephanSchuler\ArrayObject\Operator;
 use Generator;
 use Traversable;
 
-class FilterOperator extends AbstractOperator
+class FilterOperator extends AbstractOperator implements OperatorInterface
 {
     public static function filter(Traversable $data, callable $compare = null): Generator
     {
